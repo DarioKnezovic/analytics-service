@@ -1,0 +1,19 @@
+version: "3.8"
+
+networks:
+  abd-backend:
+    external:
+      name: api-gateway_abd-backend
+
+services:
+  api:
+    hostname: analytics-service
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    networks:
+      - abd-backend
+    ports:
+      - 5555:5555
+    volumes:
+      - ./:/app
