@@ -1,0 +1,22 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+
+  # Build binary.
+  cmd = "go build -o ./tmp/main.exe ."
+
+  # Read binary.
+  bin = "tmp/main.exe"
+
+  # Watch changes in those files
+  include_ext = [ "go", "yml"]
+
+  # Ignore changes in these files
+  exclude_dir = ["tmp"]
+
+  # Stop builds from triggering too fast
+  delay = 1000 # ms
+
+[misc]
+  clean_on_exit = true

@@ -2,14 +2,15 @@ package api
 
 import (
 	"github.com/DarioKnezovic/analytics-service/api/handlers"
-	"github.com/DarioKnezovic/analytics-service/internal/analytics"
+	visitor_tracking "github.com/DarioKnezovic/analytics-service/internal/visitor-tracking"
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(router *gin.Engine, analyticsService analytics.AnalyticsService) {
-	analyticsHandler := &handlers.AnalyticsHandler{
-		AnalyticsService: analyticsService,
+func RegisterRoutes(router *gin.Engine, visitorTrackingService visitor_tracking.VisitorTrackingService) {
+	visitorTrackingHandler := &handlers.VisitorTrackingHandler{
+		VisitorTrackingService: visitorTrackingService,
 	}
 
-	router.GET("/api/test", analyticsHandler.TestHandler)
+	router.GET("/api/test", visitorTrackingHandler.TestEndpoint)
+	router.POST("/api/analytics/visiting-users")
 }

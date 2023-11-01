@@ -3,22 +3,34 @@ package main
 import (
 	"fmt"
 	"github.com/DarioKnezovic/analytics-service/api"
-	"github.com/DarioKnezovic/analytics-service/repository"
-	"github.com/DarioKnezovic/analytics-service/service"
+	"github.com/DarioKnezovic/analytics-service/config"
+	"github.com/DarioKnezovic/analytics-service/internal/visitor-tracking/repository"
+	"github.com/DarioKnezovic/analytics-service/internal/visitor-tracking/service"
+	"github.com/DarioKnezovic/analytics-service/pkg/database"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"log"
 )
 
 func main() {
-	db := &gorm.DB{}
+	cfg := config.LoadConfig()
 
-	analyticsRepo := repository.NewAnalyticsRepository(db)
-	analyticsService := service.NewAnalyticsService(analyticsRepo)
+	db, err := database.ConnectDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// TODO: Write raw query migrations
+	/*err = database.PerformAutoMigrations(db)
+	if err != nil {
+		log.Fatalf("Failed to perform auto migrations: %v", err)
+	}*/
+
+	visitorTrackingRepo := repository.NewVisitorTrackingRepository(db)
+	visitorTrackingService := service.NewVisitorTrackingService(visitorTrackingRepo)
 
 	router := gin.Default()
-	api.RegisterRoutes(router, analyticsService)
+	api.RegisterRoutes(router, visitorTrackingService)
 
-	log.Printf("Server listening on port 5555")
-	log.Fatal(router.Run(fmt.Sprintf(":5555")))
+	log.Printf("Server listening on port %s", cfg.APIPort)
+	log.Fatal(router.Run(fmt.Sprintf(":%s", cfg.APIPort)))
 }
