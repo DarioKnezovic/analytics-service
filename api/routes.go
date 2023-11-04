@@ -12,5 +12,5 @@ func RegisterRoutes(router *gin.Engine, visitorTrackingService visitor_tracking.
 	}
 
 	router.GET("/api/test", visitorTrackingHandler.TestEndpoint)
-	router.POST("/api/analytics/visiting-users")
+	router.POST("/api/analytics/visiting-users", visitorTrackingHandler.RegisterVisitingUser)
 }
