@@ -34,3 +34,22 @@ func (h *VisitorTrackingHandler) RegisterVisitingUser(c *gin.Context) {
 		return
 	}
 }
+
+func (h *VisitorTrackingHandler) FetchAdBlockRate(c *gin.Context) {
+	campaignId := c.Query("campaign_id")
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	if campaignId == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, map[string]string{"error": "Parameter campaign_id is missing"})
+		return
+	}
+
+	response, err := h.VisitorTrackingService.CalculateAdBlockRate(campaignId, startDate, endDate)
+	if err != nil {
+		log.Printf("Error during calculating adblock rate: %e", err)
+		util.SendJSONResponse(c, http.StatusInternalServerError, nil)
+		return
+	}
+	util.SendJSONResponse(c, http.StatusOK, response)
+}
