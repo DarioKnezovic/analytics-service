@@ -10,7 +10,7 @@ tmp_dir = "tmp"
   bin = "tmp/main.exe"
 
   # Watch changes in those files
-  include_ext = [ "go", "yml"]
+  include_ext = [ "go", "yml", "sql"]
 
   # Ignore changes in these files
   exclude_dir = ["tmp"]

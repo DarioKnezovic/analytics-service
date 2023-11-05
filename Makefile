@@ -16,3 +16,6 @@ hot-reload:
 .PHONY: dev
 dev:
 	docker-compose up
+
+create-migration:
+	go run pkg/database/migrations/create_migration.go $(file)

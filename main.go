@@ -19,11 +19,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO: Write raw query migrations
-	/*err = database.PerformAutoMigrations(db)
+	err = database.PerformAutoMigrations(db)
 	if err != nil {
 		log.Fatalf("Failed to perform auto migrations: %v", err)
-	}*/
+	}
 
 	visitorTrackingRepo := repository.NewVisitorTrackingRepository(db)
 	visitorTrackingService := service.NewVisitorTrackingService(visitorTrackingRepo)
