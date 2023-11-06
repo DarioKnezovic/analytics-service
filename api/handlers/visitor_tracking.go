@@ -53,3 +53,46 @@ func (h *VisitorTrackingHandler) FetchAdBlockRate(c *gin.Context) {
 	}
 	util.SendJSONResponse(c, http.StatusOK, response)
 }
+
+func (h *VisitorTrackingHandler) FetchAdblockRateHistory(c *gin.Context) {
+	campaignId, period, startDate, endDate := c.Query("campaign_id"), c.Query("period"), c.Query("start_date"), c.Query("end_date")
+
+	if period == "" && campaignId == "" && startDate == "" && endDate == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, map[string]string{"error": "One of the parameters are missing"})
+		return
+	}
+
+	// Validate required parameters.
+	if campaignId == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, gin.H{"error": "campaign_id is required"})
+		return
+	}
+	if period == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, gin.H{"error": "period is required"})
+		return
+	}
+	if startDate == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, gin.H{"error": "start date is required"})
+		return
+	}
+	if endDate == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, gin.H{"error": "end date is required"})
+		return
+	}
+
+	params := visitorTracking.AdBlockRateHistoryParams{
+		CampaignId: campaignId,
+		StartDate:  startDate,
+		EndDate:    endDate,
+		Period:     period,
+	}
+
+	response, err := h.VisitorTrackingService.CalculateAdBlockRateHistory(params)
+	if err != nil {
+		log.Printf("Something went wrong during fetching history: %e", err)
+		util.SendJSONResponse(c, http.StatusInternalServerError, gin.H{"error": "Failed to fetch adblock rate history"})
+		return
+	}
+
+	util.SendJSONResponse(c, http.StatusOK, response)
+}

@@ -9,7 +9,10 @@ import (
 
 type VisitorTrackingRepository interface {
 	SaveVisitingUser(visitor models.VisitorTracking) error
-	FetchAllVisitorsForCampaign(campaignId string, startDate string, endDate string) (visitor_tracking.AdBlockRateResponse, error)
+	FetchAdblockRateForCampaign(campaignId string, startDate string, endDate string) (visitor_tracking.AdBlockRateResponse, error)
+	FetchHistoricalDailyAdBlockRate(campaignId string, startDate string, endDate string) ([]visitor_tracking.HistoricalEntry, error)
+	FetchHistoricalWeeklyAdBlockRate(campaignId string, startDate string, endDate string) ([]visitor_tracking.HistoricalEntry, error)
+	FetchHistoricalMonthlyAdBlockRate(campaignId string, startDate string, endDate string) ([]visitor_tracking.HistoricalEntry, error)
 }
 
 type visitorTrackingRepository struct {
@@ -28,7 +31,7 @@ func (r *visitorTrackingRepository) SaveVisitingUser(visitor models.VisitorTrack
 	return r.db.Create(&visitor).Error
 }
 
-func (r *visitorTrackingRepository) FetchAllVisitorsForCampaign(campaignId string, startDate string, endDate string) (visitor_tracking.AdBlockRateResponse, error) {
+func (r *visitorTrackingRepository) FetchAdblockRateForCampaign(campaignId string, startDate string, endDate string) (visitor_tracking.AdBlockRateResponse, error) {
 	var adBlockRate visitor_tracking.AdBlockRateResponse
 
 	query := `
@@ -54,4 +57,67 @@ func (r *visitorTrackingRepository) FetchAllVisitorsForCampaign(campaignId strin
 
 	err := r.db.Raw(query, args...).Scan(&adBlockRate).Error
 	return adBlockRate, err
+}
+
+func (r *visitorTrackingRepository) FetchHistoricalDailyAdBlockRate(campaignId string, startDate string, endDate string) ([]visitor_tracking.HistoricalEntry, error) {
+	var rateHistory []visitor_tracking.HistoricalEntry
+
+	query := `
+		SELECT
+			DATE(timestamp) AS date,
+			ROUND(SUM(CASE WHEN adblock_user = TRUE THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS adblock_rate
+		FROM
+			visitor_tracking
+		WHERE
+			timestamp >= ? AND timestamp <= ?
+			AND campaign_id = ?
+		GROUP BY
+			DATE(timestamp)
+		ORDER BY
+			date;`
+
+	err := r.db.Raw(query, startDate, endDate, campaignId).Scan(&rateHistory).Error
+	return rateHistory, err
+}
+
+func (r *visitorTrackingRepository) FetchHistoricalWeeklyAdBlockRate(campaignId string, startDate string, endDate string) ([]visitor_tracking.HistoricalEntry, error) {
+	var rateHistory []visitor_tracking.HistoricalEntry
+
+	query := `
+		SELECT
+			DATE_TRUNC('week', timestamp) AS date,
+			ROUND(SUM(CASE WHEN adblock_user = TRUE THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS adblock_rate
+		FROM
+			visitor_tracking
+		WHERE
+			timestamp >= ? AND timestamp <= ?
+			AND campaign_id = ?
+		GROUP BY
+			date
+		ORDER BY
+			date;`
+
+	err := r.db.Raw(query, startDate, endDate, campaignId).Scan(&rateHistory).Error
+	return rateHistory, err
+}
+
+func (r *visitorTrackingRepository) FetchHistoricalMonthlyAdBlockRate(campaignId string, startDate string, endDate string) ([]visitor_tracking.HistoricalEntry, error) {
+	var rateHistory []visitor_tracking.HistoricalEntry
+
+	query := `
+		SELECT
+			DATE_TRUNC('month', timestamp) AS date,
+			ROUND(SUM(CASE WHEN adblock_user = TRUE THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS adblock_rate
+		FROM
+			visitor_tracking
+		WHERE
+			timestamp >= ? AND timestamp <= ?
+			AND campaign_id = ?
+		GROUP BY
+			date
+		ORDER BY
+			date;`
+
+	err := r.db.Raw(query, startDate, endDate, campaignId).Scan(&rateHistory).Error
+	return rateHistory, err
 }

@@ -10,7 +10,27 @@ type AdBlockRateResponse struct {
 	AdBlockRate                 float64 `gorm:"column:adblock_rate" json:"adblock_rate"`
 }
 
+type HistoricalDataResponse struct {
+	Period    string            `json:"period"`
+	StartDate string            `json:"start_date"`
+	EndDate   string            `json:"end_date"`
+	Data      []HistoricalEntry `json:"data"`
+}
+
+type HistoricalEntry struct {
+	Date        string  `gorm:"column:date" json:"date"`
+	AdBlockRate float64 `gorm:"column:adblock_rate" json:"adblock_rate"`
+}
+
+type AdBlockRateHistoryParams struct {
+	Period     string `json:"period"`
+	StartDate  string `json:"start_date"`
+	EndDate    string `json:"end_date"`
+	CampaignId string `json:"campaign_id"`
+}
+
 type VisitorTrackingService interface {
 	RegisterVisitingUser(visitor models.VisitorTracking) error
 	CalculateAdBlockRate(campaignId string, startDate string, endDate string) (AdBlockRateResponse, error)
+	CalculateAdBlockRateHistory(params AdBlockRateHistoryParams) (HistoricalDataResponse, error)
 }

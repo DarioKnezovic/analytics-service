@@ -14,4 +14,5 @@ func RegisterRoutes(router *gin.Engine, visitorTrackingService visitor_tracking.
 	router.GET("/api/test", visitorTrackingHandler.TestEndpoint)
 	router.POST("/api/analytics/visiting-users", visitorTrackingHandler.RegisterVisitingUser)
 	router.GET("/api/analytics/adblock-rate", visitorTrackingHandler.FetchAdBlockRate)
+	router.GET("/api/analytics/adblock-rate/history", visitorTrackingHandler.FetchAdblockRateHistory)
 }
