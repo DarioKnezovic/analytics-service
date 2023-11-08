@@ -2,7 +2,7 @@
 
 CREATE TABLE modal_ctr_tracking (
                                     id INT IDENTITY(1,1) PRIMARY KEY,
-                                    user_id VARCHAR(255) NOT NULL,
+                                    session VARCHAR(255) NOT NULL,
                                     timestamp TIMESTAMP NOT NULL,
                                     interaction_type VARCHAR(50) NOT NULL,
                                     object_id VARCHAR(255) NOT NULL,
