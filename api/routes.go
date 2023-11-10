@@ -22,4 +22,5 @@ func RegisterRoutes(router *gin.Engine, visitorTrackingService visitor_tracking.
 	router.GET("/api/analytics/adblock-rate/history", visitorTrackingHandler.FetchAdblockRateHistory)
 
 	router.POST("/api/modal-ctr-tracking", modalCtrTrackingHandler.RegisterModalCtrTracking)
+	router.GET("/api/modal-ctr-tracking", modalCtrTrackingHandler.FetchModalCtrTrackingStatistics)
 }

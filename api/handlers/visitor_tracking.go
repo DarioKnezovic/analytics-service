@@ -57,11 +57,6 @@ func (h *VisitorTrackingHandler) FetchAdBlockRate(c *gin.Context) {
 func (h *VisitorTrackingHandler) FetchAdblockRateHistory(c *gin.Context) {
 	campaignId, period, startDate, endDate := c.Query("campaign_id"), c.Query("period"), c.Query("start_date"), c.Query("end_date")
 
-	if period == "" && campaignId == "" && startDate == "" && endDate == "" {
-		util.SendJSONResponse(c, http.StatusBadRequest, map[string]string{"error": "One of the parameters are missing"})
-		return
-	}
-
 	// Validate required parameters.
 	if campaignId == "" {
 		util.SendJSONResponse(c, http.StatusBadRequest, gin.H{"error": "campaign_id is required"})

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	modalCtrTrackingService "github.com/DarioKnezovic/analytics-service/internal/modal-ctr-tracking"
+	modalCtrTracking "github.com/DarioKnezovic/analytics-service/internal/modal-ctr-tracking"
 	"github.com/DarioKnezovic/analytics-service/internal/models"
 	"github.com/DarioKnezovic/analytics-service/pkg/util"
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 )
 
 type ModalCtrTrackingHandler struct {
-	ModalCtrTrackingService modalCtrTrackingService.ModalCtrTrackingService
+	ModalCtrTrackingService modalCtrTracking.ModalCtrTrackingService
 }
 
 // isValidInteractionType checks if the provided interaction_type is valid.
@@ -50,4 +50,29 @@ func (h *ModalCtrTrackingHandler) RegisterModalCtrTracking(c *gin.Context) {
 	}
 
 	util.SendJSONResponse(c, http.StatusOK, "")
+}
+
+func (h *ModalCtrTrackingHandler) FetchModalCtrTrackingStatistics(c *gin.Context) {
+	campaignId, interactionType, startDate, endDate := c.Query("campaign_id"), c.Query("interaction_type"), c.Query("start_date"), c.Query("end_date")
+
+	if campaignId == "" {
+		util.SendJSONResponse(c, http.StatusBadRequest, gin.H{"error": "campaign_id is required"})
+		return
+	}
+
+	params := modalCtrTracking.ModalCtrTrackingParams{
+		CampaignId:      campaignId,
+		InteractionType: interactionType,
+		StartDate:       startDate,
+		EndDate:         endDate,
+	}
+
+	response, err := h.ModalCtrTrackingService.GetModalCtrTrackingData(params)
+	if err != nil {
+		log.Printf("Something went wrong during fetching modal ctr tracking data: %e", err)
+		util.SendJSONResponse(c, http.StatusInternalServerError, gin.H{"error": "Failed to fetch modal ctr tracking data"})
+		return
+	}
+
+	util.SendJSONResponse(c, http.StatusOK, response)
 }
