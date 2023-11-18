@@ -27,8 +27,9 @@ func NewVisitorTrackingRepository(db *gorm.DB) VisitorTrackingRepository {
 
 func (r *visitorTrackingRepository) SaveVisitingUser(visitor models.VisitorTracking) error {
 	log.Println("Visitor is ready for storing in the database")
+	query := `INSERT INTO visitor_tracking (timestamp, adblock_user, campaign_id) VALUES (?, ?, ?)`
 
-	return r.db.Create(&visitor).Error
+	return r.db.Exec(query, visitor.Timestamp, visitor.AdblockUser, visitor.CampaignID).Error
 }
 
 func (r *visitorTrackingRepository) FetchAdblockRateForCampaign(campaignId string, startDate string, endDate string) (visitor_tracking.AdBlockRateResponse, error) {
