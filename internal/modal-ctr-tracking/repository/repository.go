@@ -22,7 +22,9 @@ func NewModalCtrTrackingRepository(db *gorm.DB) ModalCtrTrackingRepository {
 }
 
 func (r *modalCtrTrackingRepository) StoreModalCtrTracking(data models.ModalCTRTracking) error {
-	return r.db.Create(&data).Error
+	query := `INSERT INTO modal_ctr_tracking (session, additional_data, campaign_id, interaction_type, object_id) VALUES (?, ?, ?, ?, ?)`
+
+	return r.db.Exec(query, data.Session, data.AdditionalData, data.CampaignID, data.InteractionType, data.ObjectID).Error
 }
 
 func (r *modalCtrTrackingRepository) GetModalCtrTracking(params modal_ctr_tracking.FormattedModalCtrTrackingParams) ([]models.ModalCTRTracking, error) {
