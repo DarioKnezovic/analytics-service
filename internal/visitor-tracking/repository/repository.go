@@ -37,11 +37,14 @@ func (r *visitorTrackingRepository) FetchAdblockRateForCampaign(campaignId strin
 
 	query := `
         SELECT
-            COUNT(CASE WHEN adblock_user = true THEN 1 ELSE NULL END) AS number_of_users_with_adblock,
-            COUNT(CASE WHEN adblock_user = false THEN 1 ELSE NULL END) AS number_of_users_without_adblock,
-            (COUNT(CASE WHEN adblock_user = true THEN 1 ELSE NULL END)::DECIMAL / COUNT(*)) * 100 AS adblock_rate
-        FROM visitor_tracking
-        WHERE campaign_id = ?
+			COUNT(CASE WHEN adblock_user = true THEN 1 ELSE NULL END) AS number_of_users_with_adblock,
+			COUNT(CASE WHEN adblock_user = false THEN 1 ELSE NULL END) AS number_of_users_without_adblock,
+			CASE 
+				WHEN COUNT(*) = 0 THEN 0
+				ELSE (COUNT(CASE WHEN adblock_user = true THEN 1 ELSE NULL END)::DECIMAL / COUNT(*)) * 100 
+			END AS adblock_rate
+		FROM visitor_tracking
+		WHERE campaign_id = ?
     `
 
 	args := []interface{}{campaignId}
